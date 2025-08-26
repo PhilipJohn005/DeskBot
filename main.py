@@ -2,7 +2,8 @@ import speech_recognition as sr
 import pyautogui
 import os
 import time
-
+from intents.chrome_intent import handle_chrome
+from intents.spotify_intent import handle_spotify
 
 recognizer= sr.Recognizer()
 
@@ -14,19 +15,11 @@ with sr.Microphone() as source:
 
     # Parse the command ( Intent Detection )
     
-if "spotify" in command.lower():
+if "play" in command.lower():
     # play song
-    pass
-elif "chrome" in command.lower():
-    # open chrome and search
-    pass
+    handle_spotify(command)
 elif "search" in command.lower():
-    query=command.replace("search","").strip()
-    os.startfile("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe")
-    time.sleep(3)
-    pyautogui.write("https://www.google.com/search?q="+query)
-    pyautogui.press("enter")
-    
+    handle_chrome(command)
 elif "opera gx" in command.lower():
     # open opera gx
     pass

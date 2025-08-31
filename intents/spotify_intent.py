@@ -15,7 +15,7 @@ def handle_spotify(command:str):
     pyautogui.press("enter")
     time.sleep(3)
     
-    pyautogui.press("tab",presses=4,interval=0.1)
+    pyautogui.press("tab",presses=0,interval=0.1)
     pyautogui.press("enter")
     
     print(f"Playing the song {song_name}")

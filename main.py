@@ -1,69 +1,35 @@
-import speech_recognition as sr
+import asyncio
+from stt import listen_once
+from tts import speak
 from intents.chrome_intent import handle_chrome
 from intents.ytMusic_intent import handle_ytMusic
-import asyncio
-import edge_tts
-import tempfile
-import os
-import pygame 
 
-recognizer = sr.Recognizer()
+async def bot_loop():
+    await speak("Bot is now listening continuously")
 
-async def speak(text: str):
-    tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-    tmp_file.close()  # Close immediately so TTS can write
+    while True:
+        command = listen_once()
+        if not command:
+            continue
 
-    # Generate TTS audio
-    communicate = edge_tts.Communicate(text, voice="en-IN-PrabhatNeural")
-    await communicate.save(tmp_file.name)
+        print("You said:", command)
+        cmd = command.lower()
 
-    # Play audio with pygame
-    pygame.mixer.init()
-    pygame.mixer.music.load(tmp_file.name)
-    pygame.mixer.music.play()
+        # Stop the bot
+        if "quit" in cmd or "stop bot" in cmd or "exit" in cmd:
+            await speak("Goodbye")
+            break
 
-    # 🔑 Wait until playback is done
-    while pygame.mixer.music.get_busy():
-        await asyncio.sleep(0.1)
-
-    # Stop and cleanup
-    pygame.mixer.music.stop()
-    pygame.mixer.quit()
-
-    # Now safe to delete
-    os.remove(tmp_file.name)
-
-def main():
-    with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source, duration=0.5)
-
-        # Speak "Listening" immediately
-        asyncio.run(speak("Listening"))
-
-        print("Speak now...")
-        audio = recognizer.listen(source)
-
-        try:
-            command = recognizer.recognize_google(audio)
-            print("You said:", command)
-            asyncio.run(speak("The command you said is " + command))
-        except sr.UnknownValueError:
-            print("Could not understand audio")
-            asyncio.run(speak("Sorry, I did not understand that."))
-            return
-        except sr.RequestError as e:
-            print(f"Could not request results; {e}")
-            return
-
-        # Intent handling
-        if "play" in command.lower():
-            #handle_spotify(command)
+        if "play" in cmd:
             handle_ytMusic(command)
-        elif "search" in command.lower():
-            handle_chrome(command)
-        elif "opera gx" in command.lower():
-            asyncio.run(speak("Opening Opera GX"))
+            await speak("Playing your song.")
 
+        elif "search" in cmd:
+            handle_chrome(command)
+            await speak("Searching")
+
+        else:
+            await speak("I did not understand")
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(bot_loop())

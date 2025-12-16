@@ -10,7 +10,7 @@ async def speak(text: str):
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
     tmp_path = tmp.name
     tmp.close()
-    tts = edge_tts.Communicate(text, voice="en-IN-PrabhatNeural")
+    tts = edge_tts.Communicate(text, voice="en-CA-LiamNeural")
     await tts.save(tmp_path)
 
     player = vlc.MediaPlayer(tmp_path)
